@@ -15,8 +15,8 @@
  */
 package org.springframework.data.mongodb.core;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.SerializationUtils.serializeToJsonSafely;
+import static org.springframework.data.mongodb.core.query.Criteria.*;
+import static org.springframework.data.mongodb.core.query.SerializationUtils.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,6 +115,7 @@ import com.mongodb.util.JSONParseException;
  * @author Oliver Gierke
  * @author Amol Nayak
  * @author Patryk Wasik
+ * @author Tobias Trelle
  */
 public class MongoTemplate implements MongoOperations, ApplicationContextAware {
 
@@ -1207,19 +1208,21 @@ public class MongoTemplate implements MongoOperations, ApplicationContextAware {
 
 	}
 
-	public <T> AggregationResults<T> aggregate(String inputCollectionName, AggregationPipeline pipeline, Class<T> entityClass) {
+	public <T> AggregationResults<T> aggregate(String inputCollectionName, AggregationPipeline pipeline,
+			Class<T> entityClass) {
+
 		Assert.notNull(inputCollectionName, "Collection name is missing");
 		Assert.notNull(pipeline, "Aggregation pipeline is missing");
 		Assert.notNull(entityClass, "Entity class is missing");
 
 		// prepare command
-    DBObject command = new BasicDBObject("aggregate", inputCollectionName );
-    command.put( "pipeline", pipeline.getOperations() );		
-    
+		DBObject command = new BasicDBObject("aggregate", inputCollectionName);
+		command.put("pipeline", pipeline.getOperations());
+
 		// execute command
-    CommandResult commandResult = executeCommand(command);
+		CommandResult commandResult = executeCommand(command);
 		handleCommandError(commandResult, command);
-		
+
 		// map results
 		@SuppressWarnings("unchecked")
 		Iterable<DBObject> resultSet = (Iterable<DBObject>) commandResult.get("result");
@@ -1227,11 +1230,11 @@ public class MongoTemplate implements MongoOperations, ApplicationContextAware {
 		DbObjectCallback<T> callback = new ReadDbObjectCallback<T>(mongoConverter, entityClass);
 		for (DBObject dbObject : resultSet) {
 			mappedResults.add(callback.doWith(dbObject));
-		}		
-		
+		}
+
 		return new AggregationResults<T>(mappedResults, commandResult);
 	}
-	
+
 	protected String replaceWithResourceIfNecessary(String function) {
 
 		String func = function;
