@@ -1706,13 +1706,13 @@ public class MongoTemplateTests {
 		assertThat(result.model.value(), is(newModelValue));
 	}
 
-	public static interface Model {
+	static interface Model {
 		String value();
 
 		Model withValue(String value);
 	}
 
-	public static class ModelA implements Model {
+	static class ModelA implements Model {
 
 		private String value;
 
@@ -1728,7 +1728,7 @@ public class MongoTemplateTests {
 		}
 	}
 
-	public static class Document {
+	static class Document {
 
 		@Id public String id;
 		public Model model;
